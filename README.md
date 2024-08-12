@@ -29,14 +29,15 @@
    ```shell
    yum install gcc make
    make && make install
-   
-2、**设置权限**
+   ```
+2. **设置权限**
 
  ```shell
 chmod +x rinetd-installer.sh
 ./rinetd-installer.sh
+```
 
-3、**配置**
+3. **配置**
 
 端口转发的配置文件位于/etc/rinetd.conf。
 rinetd.conf文件的格式如下：
@@ -66,105 +67,66 @@ logfile /var/log/rinetd.log
 *# 0.0.0.0 8090 188.131.152.100 8080
 
 EOF
+```
 
-4、**创建启动脚本**
+4. **创建启动脚本**
 
  ```shell
 cat >> /etc/init.d/rinetd <<'EOF'
-
 #!/bin/bash
-
 EXEC=/usr/sbin/rinetd
-
 CONF=/etc/rinetd.conf
-
 PID_FILE=/var/run/rinetd.pid
-
 NAME=Rinetd
-
 DESC="Rinetd Server"
-
 case "$1" in
-
-    start)
-    
-        if [ -x "$PID_FILE" ]; then
-        
-            echo "$NAME is running ..."
-            
-            exit 0
-            
+    start)    
+        if [ -x "$PID_FILE" ]; then        
+            echo "$NAME is running ..."            
+            exit 0            
         fi
-
         $EXEC -c $CONF
-
-        echo -e "\e[1;32m$NAME is running\e[0m"
-        
+        echo -e "\e[1;32m$NAME is running\e[0m"        
     ;;
     
     stop)
-        if [ -f "$PID_FILE" ]; then
-        
+        if [ -f "$PID_FILE" ]; then        
             kill `cat $PID_FILE`
-
-            while [ -x "$PID_FILE" ]
-            
+            while [ -x "$PID_FILE" ]            
             do
-                echo "Waiting for $NAME to shutdown..."  
-                
-                sleep 1
-                
+                echo "Waiting for $NAME to shutdown..."                  
+                sleep 1                
             done
-
-            rm -f $PID_FILE
-            
+            rm -f $PID_FILE            
         fi
-
-        echo -e "\e[1;31m$NAME stopped.\e[0m"
-        
-    ;;
-    
-    restart)
-    
-        $0 stop
-        
-        $0 start
-        
-    ;;
-    
-    status)
-    
+        echo -e "\e[1;31m$NAME stopped.\e[0m"        
+    ;;    
+    restart)    
+        $0 stop        
+        $0 start        
+    ;;    
+    status)    
         if [ -f $PID_FILE ]; then
         
-            echo "$NAME is running ..."
-            
-        else
-        
-            echo "$NAME stopped."
-            
-        fi
-        
-    ;;
-    
-    *)
-    
-        echo $"Usage: $0 {start|stop|restart|status}"
-        
-        exit 2
-        
-    ;;
-    
+            echo "$NAME is running ..."            
+        else        
+            echo "$NAME stopped."            
+        fi  
+    ;;    
+    *)    
+        echo $"Usage: $0 {start|stop|restart|status}"        
+        exit 2        
+    ;;    
 esac
-
 exit 0
-
 EOF
+```
 
-
-5、**启动服务**
+5. **启动服务**
 
  ```shell
 /etc/init.d/rinetd start
+```
 
 6、**设置开机启动**
 在/etc/rc.local文件中添加/usr/sbin/rinetd 或 /usr/sbin/rinetd -c /etc/rinetd.conf 启动命令。

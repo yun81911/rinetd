@@ -32,7 +32,7 @@
    
 2、**设置权限**
 
-shell
+ ```shell
 chmod +x rinetd-installer.sh
 ./rinetd-installer.sh
 
@@ -45,7 +45,7 @@ rinetd.conf文件的格式如下：
 在每一行中指定每个要转发的端口。源地址和目的地址可以是主机名或IP地址。使用IP地址0.0.0.0将Rinetd绑定到任何可用的本地IP地址。
 
 
-shell
+ ```shell
 rm -f /etc/rinetd.conf
 cat >> /etc/rinetd.conf <<EOF
 
@@ -69,7 +69,7 @@ EOF
 
 4、**创建启动脚本**
 
-shell
+ ```shell
 cat >> /etc/init.d/rinetd <<'EOF'
 
 #!/bin/bash
@@ -163,7 +163,7 @@ EOF
 
 5、**启动服务**
 
-shell
+ ```shell
 /etc/init.d/rinetd start
 
 6、**设置开机启动**

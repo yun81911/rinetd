@@ -27,8 +27,18 @@
 
 1. **安装依赖**
    ```shell
-   yum install gcc make
+   cat >> rinetd-installer.sh <<'EOF'
+   #!/bin/bash
+   wget http://www.boutell.com/rinetd/http/rinetd.tar.gz
+   tar zxvf rinetd.tar.gz
+   cd rinetd
+   mkdir -p /usr/man/man8
+   # make编译提示：make cc Command not found 解决办法 -> yum安装gcc
+   yum install gcc
    make && make install
+   EOF
+   chmod +x rinetd-installer.sh
+   ./rinetd-installer.sh
    ```
 2. **设置权限**
 

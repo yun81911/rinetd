@@ -34,7 +34,7 @@ chmod +x rinetd-installer.sh
 2、配置
 配置端口转发的配置文件在/etc/rinetd.conf
 
-配置文件格式
+rinetd.conf配置文件格式
 
 #
 [Source Address] [Source Port] [Destination Address] [Destination Port]
@@ -42,6 +42,103 @@ chmod +x rinetd-installer.sh
 源地址 源端口 目的地址 目的端口
 ex:
 10.0.1.11 80  192.168.1.11 8080
-#
+
 在每一单独的行中指定每个要转发的端口。源地址和目的地址都可以是主机名或IP地址，IP 地址0.0.0.0将rinetd绑定到任何可用的本地IP地址上。例如：0.0.0.0 8080 wuweixiang.cn 80
+
+'''
+rm -f /etc/rinetd.conf
+
+cat >> /etc/rinetd.conf <<EOF
+
+*# 设置允许访问的ip地址信息
+
+*# allow 192.168.2.*
+
+*# 设置拒绝访问的ip地址信息
+
+*# deny 192.168.1.*
+
+*# 设置日志文件路径
+
+logfile /var/log/rinetd.log
+
+*# 例子: 将本机 8080 端口重定向至 188.131.152.100 的 8080 端口
+
+*# 0.0.0.0 8090 188.131.152.100 8080
+
+EOF
+'''
+
+3、创建启动脚本
+'''
+cat >> /etc/init.d/rinetd <<'EOF'
+#!/bin/bash
+
+EXEC=/usr/sbin/rinetd
+CONF=/etc/rinetd.conf
+PID_FILE=/var/run/rinetd.pid
+NAME=Rinetd
+DESC="Rinetd Server"
+
+case "$1" in
+    start)
+        if [ -x "$PID_FILE" ]; then
+            echo "$NAME is running ..."
+            exit 0
+        fi
+
+        $EXEC -c $CONF
+
+        echo -e "\e[1;32m$NAME is running\e[0m"
+    ;;
+    stop)
+        if [ -f "$PID_FILE" ]; then
+            kill `cat $PID_FILE`
+
+            while [ -x "$PID_FILE" ]
+            do
+                echo "Waiting for $NAME to shutdown..."  
+                sleep 1
+            done
+
+            rm -f $PID_FILE
+        fi
+
+        echo -e "\e[1;31m$NAME stopped.\e[0m"
+    ;;
+    restart)
+        $0 stop
+        $0 start
+    ;;
+    status)
+        if [ -f $PID_FILE ]; then
+            echo "$NAME is running ..."
+        else
+            echo "$NAME stopped."
+        fi
+    ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        exit 2
+    ;;
+esac
+
+exit 0
+EOF
+'''
+
+4、启动服务
+'''
+/etc/init.d/rinetd start
+'''
+5、开机启动 
+ 
+在/etc/rc.local 文件中，添加/usr/sbin/rinetd 或者 /usr/sbin/rinetd -c /etc/rinetd.conf 启动命令即可。
+ 
+6、需要注意
+
+rinetd.conf中绑定的本机端口必须没有被其它程序占用
+ 
+
+
 
